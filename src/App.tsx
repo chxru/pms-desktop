@@ -25,25 +25,25 @@ const theme = extendTheme({
 });
 
 export default function App() {
-  const [isLoggedIn, setisLoggedIn] = useState<false>(false);
+  const [isLoggedIn, setisLoggedIn] = useState<boolean>(true);
 
   return (
     <Router>
       <ChakraProvider theme={theme}>
         <Flex direction="row" width="100vw" h="100vh">
           {isLoggedIn ? (
-            <Box>
+            <>
               <Sidebar />
               <Box overflowY="auto" w="full">
                 <Topbar />
                 <Box marginTop="60px">
                   <Switch>
                     <Route path="/login" component={LoginPage} />
-                    <Route exact path="/" component={HomePage} />
+                    <Route path="/" component={HomePage} />
                   </Switch>
                 </Box>
               </Box>
-            </Box>
+            </>
           ) : (
             <Box>
               <Switch>
