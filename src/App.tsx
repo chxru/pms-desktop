@@ -10,10 +10,12 @@ import { Box, ChakraProvider, extendTheme, Flex } from '@chakra-ui/react';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 
+import AuthContext from './context/auth-context';
+
 import HomePage from './pages/Home';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
-import AuthContext from './context/auth-context';
+import AddPatientPage from './pages/AddPatient';
 
 const theme = extendTheme({
   colors: {
@@ -50,6 +52,7 @@ export default function App() {
                   <Topbar />
                   <Box marginTop="60px">
                     <Switch>
+                      <Route path="/addPatient" component={AddPatientPage} />
                       <Route path="/" component={HomePage} />
                     </Switch>
                   </Box>
