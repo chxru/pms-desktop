@@ -1,3 +1,6 @@
+# Pouchdb-leveldown location
+/db/
+
 # Logs
 logs
 *.log

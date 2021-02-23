@@ -11,10 +11,25 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
+import { CheckUsernamePassword, CreateNewUser } from './ipc/auth';
+
+/* ipc */
+
+// check username with password
+ipcMain.on('check-uname-pwd', async (evt, args) => {
+  const res = await CheckUsernamePassword(args.username, args.password);
+  evt.reply('check-uname-pwd-res', res);
+});
+
+// create new user
+ipcMain.on('register-new-user', async (evt, args) => {
+  const res = await CreateNewUser(args.username, args.password);
+  evt.reply('register-new-user-res', res);
+});
 
 export default class AppUpdater {
   constructor() {
