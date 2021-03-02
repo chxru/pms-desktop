@@ -7,7 +7,6 @@ import {
 } from 'react-router-dom';
 import { Box, ChakraProvider, extendTheme, Flex } from '@chakra-ui/react';
 
-import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 
 import AuthContext from './context/auth-context';
@@ -47,7 +46,6 @@ export default function App() {
           <Flex direction="row" width="100vw" h="100vh">
             {isLoggedIn ? (
               <>
-                <Sidebar />
                 <Box overflowY="auto" w="full">
                   <Topbar />
                   <Box marginTop="60px">
