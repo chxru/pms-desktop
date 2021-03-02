@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Button,
@@ -17,6 +17,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+import { ipcRenderer } from 'electron';
 
 interface PatientFormInterface {
   firstname: string;
@@ -38,9 +39,28 @@ interface PatientFormInterface {
 const AddPatientPage: React.FC = () => {
   const { handleSubmit, register } = useForm<PatientFormInterface>();
   const onSubmit = (values: PatientFormInterface) => {
-    // eslint-disable-next-line no-console
-    console.log('values', values);
+    ipcRenderer.send('new-patient-add', values);
   };
+
+  useEffect(() => {
+    ipcRenderer.on(
+      'new-patient-add-res',
+      (_, args: { res: string | boolean; error?: string }) => {
+        // add patient is success
+        if (args.res) {
+          // eslint-disable-next-line no-console
+          console.log(args.res);
+        } else {
+          // eslint-disable-next-line no-console
+          console.log(args);
+        }
+      }
+    );
+    return () => {
+      ipcRenderer.removeListener('register-new-user-res', () => {});
+    };
+  }, []);
+
   return (
     <Container maxW="4xl" bg="white" paddingY="7">
       <form onSubmit={handleSubmit(onSubmit)}>

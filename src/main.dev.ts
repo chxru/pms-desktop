@@ -15,10 +15,12 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
-import { CheckUsernamePassword, CreateNewUser } from './ipc/auth';
 
 /* ipc */
+import { CheckUsernamePassword, CreateNewUser } from './ipc/auth';
+import { AddNewPatient } from './ipc/patient';
 
+/* ipc-auth */
 // check username with password
 ipcMain.on('check-uname-pwd', async (evt, args) => {
   const res = await CheckUsernamePassword(args.username, args.password);
@@ -29,6 +31,13 @@ ipcMain.on('check-uname-pwd', async (evt, args) => {
 ipcMain.on('register-new-user', async (evt, args) => {
   const res = await CreateNewUser(args.username, args.password);
   evt.reply('register-new-user-res', res);
+});
+
+/* ipc-patient */
+// add new patient
+ipcMain.on('new-patient-add', async (evt, args) => {
+  const res = await AddNewPatient(args);
+  evt.reply('new-patient-add-res', res);
 });
 
 export default class AppUpdater {
