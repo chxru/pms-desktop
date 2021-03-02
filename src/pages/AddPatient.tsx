@@ -25,22 +25,21 @@ interface PatientFormInterface {
   dob_month: number;
   dob_date: number;
   gender: 'male' | 'female';
-  patientcode: number;
-  gFirstname: string;
-  gLastname: string;
-  gNIC: number;
-  gMobileno: number;
-  gFiexedno: number;
-  ghouse: string;
-  gstreet: string;
-  gcity: string;
+  gurardian_firstname: string;
+  gurardian_lastname: string;
+  gurardian_nic: string;
+  gurardian_mobile: number;
+  gurardian_fixed: number;
+  gurardian_addr_house: string;
+  gurardian_addr_street: string;
+  gurardian_addr_city: string;
 }
 
 const AddPatientPage: React.FC = () => {
   const { handleSubmit, register } = useForm<PatientFormInterface>();
   const onSubmit = (values: PatientFormInterface) => {
     // eslint-disable-next-line no-console
-    console.log(values);
+    console.log('values', values);
   };
   return (
     <Container maxW="4xl" bg="white" paddingY="7">
@@ -51,6 +50,7 @@ const AddPatientPage: React.FC = () => {
 
         <Divider />
 
+        {/* Name */}
         <SimpleGrid columns={{ sm: 1, md: 2 }} spacing="40px" mt={5}>
           <FormControl isRequired>
             <FormLabel htmlFor="firstname">First Name</FormLabel>
@@ -58,7 +58,6 @@ const AddPatientPage: React.FC = () => {
               name="firstname"
               bg="white"
               type="string"
-              placeholder="Kasun"
               ref={register({ required: true })}
             />
           </FormControl>
@@ -69,15 +68,14 @@ const AddPatientPage: React.FC = () => {
               name="lastname"
               bg="white"
               type="string"
-              placeholder="Perera"
               ref={register({ required: true })}
             />
           </FormControl>
         </SimpleGrid>
 
+        {/* date of birth */}
         <SimpleGrid columns={2} spacing="40px" mt={5}>
           <Box>
-            {/* dob */}
             <Box>
               <FormLabel>Date of Birth</FormLabel>
 
@@ -114,31 +112,19 @@ const AddPatientPage: React.FC = () => {
                     <Radio
                       name="gender"
                       value="male"
-                      ref={register()}
-                      borderColor="#63707e"
+                      ref={register({ required: true })}
                     >
                       Male
                     </Radio>
                     <Radio
                       name="gender"
                       value="female"
-                      ref={register()}
-                      borderColor="#63707e"
+                      ref={register({ required: true })}
                     >
                       Female
                     </Radio>
                   </HStack>
                 </RadioGroup>
-              </FormControl>
-            </Box>
-            <Box marginTop="7">
-              <FormControl isRequired>
-                <FormLabel htmlFor="patientcode"> Patient code</FormLabel>
-                <Input
-                  name="patientcode"
-                  ref={register({ required: true })}
-                  bg="white"
-                />
               </FormControl>
             </Box>
           </Box>
@@ -148,60 +134,58 @@ const AddPatientPage: React.FC = () => {
         </SimpleGrid>
 
         <Text fontSize="xl" fontWeight="bold" paddingTop="12">
-          {' '}
-          Parent/Gurardian Details{' '}
+          Parent/Gurardian Details
         </Text>
         <Divider />
 
         {/* Guardian Name */}
         <SimpleGrid columns={{ sm: 1, md: 2 }} spacing="40px" mt={5}>
           <FormControl isRequired>
-            <FormLabel htmlFor="gFirstname">First Name</FormLabel>
+            <FormLabel htmlFor="gurardian_firstname">First Name</FormLabel>
             <Input
-              name="gFirstname"
+              name="gurardian_firstname"
               ref={register({ required: true })}
               bg="white"
               type="string"
-              placeholder="Thamara"
             />
           </FormControl>
 
           <FormControl isRequired>
-            <FormLabel htmlFor="gLastname">Last Name</FormLabel>
+            <FormLabel htmlFor="gurardian_lastname">Last Name</FormLabel>
             <Input
-              name="gLastname"
+              name="gurardian_lastname"
               ref={register({ required: true })}
               type="string"
               bg="white"
-              placeholder="Perera"
             />
           </FormControl>
         </SimpleGrid>
 
+        {/* Guardian NIC */}
         <SimpleGrid columns={{ sm: 1, md: 2 }} spacing="40px" mt={5}>
-          <FormControl>
-            {' '}
-            {/* Guardian NIC */}
-            <FormLabel htmlFor="gNIC"> NIC </FormLabel>
+          <FormControl isRequired>
+            <FormLabel htmlFor="gurardian_nic">NIC</FormLabel>
             <Input
-              name="gNIC"
-              type="number"
+              name="gurardian_nic"
+              type="string"
               ref={register({ required: true })}
               bg="white"
               placeholder="123456789V"
             />
           </FormControl>
         </SimpleGrid>
-        <Text fontSize="xl" paddingTop="10" paddingLeft="10">
+
+        <Text fontSize="xl" fontWeight="bold" paddingTop="12">
           Contact Details
         </Text>
+        <Divider />
 
         {/* Contact Number */}
         <SimpleGrid columns={{ sm: 1, md: 2 }} spacing="40px" mt={3}>
-          <FormControl isRequired>
-            <FormLabel htmlFor="gMobileno">Mobile Number</FormLabel>
+          <FormControl>
+            <FormLabel htmlFor="gurardian_mobile">Mobile Number</FormLabel>
             <Input
-              name="gMobileno"
+              name="gurardian_mobile"
               type="number"
               ref={register()}
               bg="white"
@@ -209,10 +193,10 @@ const AddPatientPage: React.FC = () => {
             />
           </FormControl>
 
-          <FormControl isRequired>
-            <FormLabel htmlFor="gFixedno">Fixed Number</FormLabel>
+          <FormControl>
+            <FormLabel htmlFor="gurardian_fixed">Fixed Number</FormLabel>
             <Input
-              name="gFixedno"
+              name="gurardian_fixed"
               type="number"
               ref={register({ min: 0 })}
               bg="white"
@@ -227,31 +211,30 @@ const AddPatientPage: React.FC = () => {
         </Text>
         <SimpleGrid columns={2} spacing="40px" mt={3}>
           <FormControl isRequired>
-            <FormLabel htmlFor="ghouse"> House Number </FormLabel>
+            <FormLabel htmlFor="gurardian_addr_house">House Number</FormLabel>
             <Input
-              name="ghouse"
+              name="gurardian_addr_house"
               ref={register({ required: true })}
               bg="white"
-              placeholder="No.123"
             />
           </FormControl>
 
           <FormControl isRequired>
-            <FormLabel htmlFor="gstreet"> Street Address </FormLabel>
+            <FormLabel htmlFor="gurardian_addr_street">
+              Street Address
+            </FormLabel>
             <Input
-              name="gstreet"
+              name="gurardian_addr_street"
               ref={register({ required: true })}
               bg="white"
-              placeholder="Saman Rd,"
             />
           </FormControl>
           <FormControl isRequired>
-            <FormLabel htmlFor="gcity"> City </FormLabel>
+            <FormLabel htmlFor="gurardian_city">City</FormLabel>
             <Input
-              name="gcity"
+              name="gurardian_city"
               ref={register({ required: true })}
               bg="white"
-              placeholder="Galle"
             />
           </FormControl>
         </SimpleGrid>
