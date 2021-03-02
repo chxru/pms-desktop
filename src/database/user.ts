@@ -1,6 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import bcryptjs from 'bcryptjs';
-import { UserInterface, USERS } from './database';
+import { USERS } from './database';
+import { UserInterface } from './schemes/user_scheme';
 
 const searchByUsername = async (
   username: string
