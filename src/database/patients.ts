@@ -13,8 +13,6 @@ const SearchPatientByID = async (id: string) => {
 };
 
 const GenerateNewID = async (): Promise<string> => {
-  // eslint-disable-next-line no-console
-  console.log('generating id');
   const id = crypto.randomBytes(4).toString('hex');
   const isDuplicate = await SearchPatientByID(id);
   if (!isDuplicate) {
@@ -41,5 +39,33 @@ export const DBAddNewPatient = async (
     return { res: false, error: 'response ok is false' };
   } catch (error) {
     return { res: false, error };
+  }
+};
+
+export const DBSearchByName = async (
+  name: string
+): Promise<{
+  res?: PouchDB.Core.ExistingDocument<PatientInterface>[];
+  error?: string;
+}> => {
+  try {
+    const indexRes = await PATIENTS.createIndex({
+      index: {
+        fields: ['firstname'],
+      },
+    });
+
+    if (indexRes.result === 'created' || indexRes.result === 'exists') {
+      const res = await PATIENTS.find({
+        selector: { firstname: { $elemMatch: name } },
+        fields: ['_id', 'firstname', 'lastname'],
+        sort: ['firstname'],
+      });
+
+      return { res: res.docs };
+    }
+    return { error: 'DBSearchByName createIndex failed' };
+  } catch (error) {
+    return { error };
   }
 };

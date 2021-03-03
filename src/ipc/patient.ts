@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { DBAddNewPatient } from '../database/patients';
+import { DBAddNewPatient, DBSearchByName } from '../database/patients';
 import { PatientInterface } from '../database/schemes/patient_scheme';
 
 export const AddNewPatient = async (
@@ -26,4 +26,14 @@ export const AddNewPatient = async (
   } catch (error) {
     return { res: false, error };
   }
+};
+
+export const SearchPatientByName = async (
+  name: string
+): Promise<{
+  res: PouchDB.Core.ExistingDocument<PatientInterface>[] | undefined;
+  error: string | undefined;
+}> => {
+  const { res, error } = await DBSearchByName(name);
+  return { res, error };
 };
