@@ -15,7 +15,7 @@ import HomePage from './pages/Home';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import AddPatientPage from './pages/AddPatient';
-import ProfileView from './pages/Profileview';
+import ProfileView from './pages/Profile';
 
 const theme = extendTheme({
   colors: {
