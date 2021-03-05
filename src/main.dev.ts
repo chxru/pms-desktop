@@ -18,7 +18,11 @@ import MenuBuilder from './menu';
 
 /* ipc */
 import { CheckUsernamePassword, CreateNewUser } from './ipc/auth';
-import { AddNewPatient, SearchPatientByName } from './ipc/patient';
+import {
+  AddNewPatient,
+  GetPatientByID,
+  SearchPatientByName,
+} from './ipc/patient';
 
 /* ipc-auth */
 // check username with password
@@ -44,6 +48,12 @@ ipcMain.on('new-patient-add', async (evt, args) => {
 ipcMain.on('quick-search', async (evt, args) => {
   const res = await SearchPatientByName(args);
   evt.reply('quick-search-res', res);
+});
+
+// get patient full-info
+ipcMain.on('get-patient-by-id', async (evt, args) => {
+  const res = await GetPatientByID(args);
+  evt.reply('get-patient-by-id-res', res);
 });
 
 export default class AppUpdater {

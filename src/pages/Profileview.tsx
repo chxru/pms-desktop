@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -45,6 +45,9 @@ import {
   AlertDialogOverlay,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
+import { ipcRenderer } from 'electron';
+import { PatientInterface } from '../database/schemes/patient_scheme';
 
 interface Bedticketform {
   admission_number: string;
@@ -57,7 +60,7 @@ interface Bedticketform {
   discharge_year: number;
 }
 
-const Profileview: React.FC = () => {
+const ProfileView: React.FC = () => {
   const { handleSubmit, register } = useForm<Bedticketform>();
   const {
     isOpen: admissionIsopen,
@@ -92,37 +95,64 @@ const Profileview: React.FC = () => {
   const onClose = () => setIsOpen(false);
   const cancelRef = React.useRef(null);
 
+  const { id } = useParams<{ id: string }>();
+  const [patient, setpatient] = useState<PatientInterface>();
+
   const onSubmit = (values: Bedticketform) => {
     // eslint-disable-next-line no-console
     console.log(values);
   };
 
+  useEffect(() => {
+    ipcRenderer.send('get-patient-by-id', id);
+    ipcRenderer.once(
+      'get-patient-by-id-res',
+      (_, args: { res: PatientInterface | false; error?: string }) => {
+        if (args.res) {
+          setpatient(args.res);
+        }
+      }
+    );
+  }, [id]);
+
   return (
     <Container maxW="4xl" bg="white" paddingY="7">
       <Flex wrap="wrap">
         <Square bg="blue.500" size="256px">
-          <Text>Box 2</Text>
+          <Text>Profile picture</Text>
         </Square>
         <Box flex="1">
           <Text fontSize="xl" fontWeight="bold" paddingLeft="7">
-            Sanjana Hiruki
+            {patient?.firstname.join(' ')} {patient?.lastname.join(' ')}
           </Text>
           <SimpleGrid columns={{ sm: 1, md: 2 }} pt={5}>
             <Box paddingX={7}>
-              <Text fontWeight="bold">Patiet Details</Text>
+              <Text fontWeight="bold">Patient Details</Text>
               <Divider />
-              <Text fontSize="lg">Female</Text>
-              <Text>2002.12.05</Text>
-              <Text>12 Years</Text>
+              <Text>{patient?.gender}</Text>
+              <Text>
+                {patient?.dob_year} / {patient?.dob_month} / {patient?.dob_date}
+              </Text>
+              <Text>
+                {patient?.dob_year
+                  ? new Date().getFullYear() - patient?.dob_year
+                  : '-'}{' '}
+                years old
+              </Text>
             </Box>
             <Box paddingX={7}>
               <Text fontWeight="bold">Parent/Gurardian Details</Text>
               <Divider />
-              <Text>Darshana Silva</Text>
-              <Text>123456789V</Text>
-              <Text>0712345678</Text>
-              <Text>0912345678</Text>
-              <Text>No.125/A, Dikwella Rd, Galle</Text>
+              <Text>
+                {patient?.gurardian_firstname} {patient?.gurardian_lastname}
+              </Text>
+              <Text>{patient?.gurardian_nic}</Text>
+              <Text>{patient?.gurardian_mobile}</Text>
+              <Text>{patient?.gurardian_fixed}</Text>
+              <Text>
+                {patient?.gurardian_addr_house},{' '}
+                {patient?.gurardian_addr_street}, {patient?.gurardian_addr_city}
+              </Text>
             </Box>
           </SimpleGrid>
         </Box>
@@ -982,4 +1012,4 @@ const Profileview: React.FC = () => {
   );
 };
 
-export default Profileview;
+export default ProfileView;

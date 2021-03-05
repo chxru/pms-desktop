@@ -70,11 +70,23 @@ const Topbar: React.FC = () => {
           width="lg"
           maxHeight="xl"
           paddingX="21px"
-          paddingY="14px"
+          paddingBottom="14px"
           marginY="7px"
           overflowY="auto"
           shadow="sm"
         >
+          <Box>
+            <Text
+              textAlign="right"
+              cursor="pointer"
+              onClick={() => {
+                setsearchResult([]);
+                setsearchState('inactive');
+              }}
+            >
+              close
+            </Text>
+          </Box>
           {searchState === 'searching' ? (
             <Stack>
               <SkeletonText noOfLines={3} />
@@ -86,7 +98,14 @@ const Topbar: React.FC = () => {
             <>
               {searchResult?.map((i) => {
                 return (
-                  <Box key={i['_id']}>
+                  <Box
+                    key={i['_id']}
+                    cursor="pointer"
+                    onClick={() => {
+                      setsearchState('inactive');
+                      history.push(`/profile/${i['_id']}`);
+                    }}
+                  >
                     <Text>
                       {i.firstname} {i.lastname}
                     </Text>
@@ -106,7 +125,19 @@ const Topbar: React.FC = () => {
   };
 
   return (
-    <Flex direction="column" position="fixed" w="100vw" zIndex="10">
+    <Flex
+      direction="column"
+      position="fixed"
+      w="100vw"
+      zIndex="10"
+      onBlur={() => {
+        if (!searchResult?.length) {
+          setsearchState('inactive');
+          reset();
+        }
+      }}
+    >
+      {/* Topbar */}
       <Flex
         direction="row"
         height="54px"
@@ -169,10 +200,6 @@ const Topbar: React.FC = () => {
                 ref={register()}
                 placeholder="Search"
                 marginX="3"
-                onBlur={() => {
-                  setsearchState('inactive');
-                  reset();
-                }}
               />
             </InputGroup>
           </form>
@@ -194,6 +221,7 @@ const Topbar: React.FC = () => {
           <Box as="span">
             <LogOut
               cursor="pointer"
+              size="18"
               onClick={() => {
                 auth.SignOut();
               }}
