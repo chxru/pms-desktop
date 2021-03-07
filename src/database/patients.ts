@@ -5,13 +5,24 @@ import { PatientInterface } from './schemes/patient_scheme';
 
 const GenerateNewID = async (): Promise<string> => {
   const id = crypto.randomBytes(4).toString('hex');
-  const isDuplicate = await PATIENTS.get(id);
-  if (!isDuplicate) {
-    return id;
-  }
+  try {
+    await PATIENTS.get(id);
 
-  // rerun the function if the id is a duplicate
-  return GenerateNewID();
+    /*
+    if above code did not find a patient for give id, it throws
+    an error
+
+    which means unique id is returning inside catch {}
+    recurssion happening inside try{}
+    */
+
+    return GenerateNewID();
+  } catch (error) {
+    if (error.status === 404 && error.reason === 'missing') {
+      return id;
+    }
+    return `!error ${error}`;
+  }
 };
 
 export const DBAddNewPatient = async (
@@ -20,6 +31,9 @@ export const DBAddNewPatient = async (
   try {
     // create random unique id
     const id = await GenerateNewID();
+    if (id.startsWith('!')) {
+      return { res: false, error: id };
+    }
 
     // insert data to database
     const res = await PATIENTS.put({ _id: id, ...data });
