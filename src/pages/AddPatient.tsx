@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { ipcRenderer } from 'electron';
+import { useHistory } from 'react-router';
 
 interface PatientFormInterface {
   firstname: string;
@@ -37,6 +38,7 @@ interface PatientFormInterface {
 }
 
 const AddPatientPage: React.FC = () => {
+  const history = useHistory();
   const { handleSubmit, register } = useForm<PatientFormInterface>();
   const onSubmit = (values: PatientFormInterface) => {
     ipcRenderer.send('new-patient-add', values);
@@ -48,8 +50,7 @@ const AddPatientPage: React.FC = () => {
       (_, args: { res: string | boolean; error?: string }) => {
         // add patient is success
         if (args.res) {
-          // eslint-disable-next-line no-console
-          console.log(args.res);
+          history.replace(`/profile/${args.res}`);
         } else {
           // eslint-disable-next-line no-console
           console.log(args);
@@ -59,7 +60,7 @@ const AddPatientPage: React.FC = () => {
     return () => {
       ipcRenderer.removeListener('register-new-user-res', () => {});
     };
-  }, []);
+  }, [history]);
 
   return (
     <Container maxW="4xl" bg="white" paddingY="7">
