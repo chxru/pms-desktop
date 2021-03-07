@@ -1,5 +1,9 @@
 /* eslint-disable import/prefer-default-export */
-import { DBAddNewPatient, DBSearchByName } from '../database/patients';
+import {
+  DBAddNewPatient,
+  DBSearchByID,
+  DBSearchByName,
+} from '../database/patients';
 import { PatientInterface } from '../database/schemes/patient_scheme';
 
 export const AddNewPatient = async (
@@ -35,5 +39,14 @@ export const SearchPatientByName = async (
   error: string | undefined;
 }> => {
   const { res, error } = await DBSearchByName(name);
+  return { res, error };
+};
+
+export const GetPatientByID = async (id: string) => {
+  if (!id) {
+    return { res: false, error: 'empty id' };
+  }
+
+  const { res, error } = await DBSearchByID(id);
   return { res, error };
 };

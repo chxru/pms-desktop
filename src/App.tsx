@@ -15,6 +15,7 @@ import HomePage from './pages/Home';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import AddPatientPage from './pages/AddPatient';
+import ProfileView from './pages/Profile';
 
 const theme = extendTheme({
   colors: {
@@ -50,6 +51,7 @@ export default function App() {
                   <Topbar />
                   <Box marginTop="60px">
                     <Switch>
+                      <Route path="/profile/:id" component={ProfileView} />
                       <Route path="/addPatient" component={AddPatientPage} />
                       <Route path="/" component={HomePage} />
                     </Switch>

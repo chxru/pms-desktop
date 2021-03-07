@@ -3,18 +3,9 @@ import crypto from 'crypto';
 import { PATIENTS } from './database';
 import { PatientInterface } from './schemes/patient_scheme';
 
-const SearchPatientByID = async (id: string) => {
-  try {
-    const doc = await PATIENTS.get(id);
-    return doc;
-  } catch (error) {
-    return false;
-  }
-};
-
 const GenerateNewID = async (): Promise<string> => {
   const id = crypto.randomBytes(4).toString('hex');
-  const isDuplicate = await SearchPatientByID(id);
+  const isDuplicate = await PATIENTS.get(id);
   if (!isDuplicate) {
     return id;
   }
@@ -67,5 +58,17 @@ export const DBSearchByName = async (
     return { error: 'DBSearchByName createIndex failed' };
   } catch (error) {
     return { error };
+  }
+};
+
+export const DBSearchByID = async (id: string) => {
+  try {
+    const doc = await PATIENTS.get(id, { attachments: true });
+    if (doc) {
+      return { res: doc };
+    }
+    return { res: false, error: `User ${id} not found` };
+  } catch (error) {
+    return { res: false, error };
   }
 };
