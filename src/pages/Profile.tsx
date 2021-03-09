@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -6,6 +7,7 @@ import {
   Flex,
   SimpleGrid,
   Square,
+  Image,
   Text,
   Tabs,
   TabList,
@@ -25,9 +27,13 @@ import NewAdmissionModal from '../components/profile/NewAdmission';
 import BedTicket from '../components/profile/BedTicket';
 import PreviousAdmission from '../components/profile/PreviousAdmission';
 
+interface PatientDataRes extends PatientInterface {
+  _attachments: { [name: string]: { content_type: string; data: string } };
+}
+
 const ProfileView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [patient, setpatient] = useState<PatientInterface>();
+  const [patient, setpatient] = useState<PatientDataRes>();
 
   const {
     isOpen: admissionIsOpen,
@@ -39,7 +45,7 @@ const ProfileView: React.FC = () => {
     ipcRenderer.send('get-patient-by-id', id);
     ipcRenderer.once(
       'get-patient-by-id-res',
-      (_, args: { res: PatientInterface | false; error?: string }) => {
+      (_, args: { res: PatientDataRes | false; error?: string }) => {
         if (args.res) {
           setpatient(args.res);
         }
@@ -52,8 +58,19 @@ const ProfileView: React.FC = () => {
       {/* patient data */}
       <Flex wrap="wrap">
         {/* title */}
-        <Square bg="blue.500" size="256px">
-          <Text>Profile picture</Text>
+        <Square bg="gray.100" size="250px">
+          {patient?._attachments &&
+          patient?._attachments.patient.data !== '' ? (
+            <Image
+              width="100%"
+              objectFit="contain"
+              src={'data:image/jpeg;base64,'.concat(
+                patient?._attachments.patient.data
+              )}
+            />
+          ) : (
+            <Text>Profile image</Text>
+          )}
         </Square>
 
         {/* details */}

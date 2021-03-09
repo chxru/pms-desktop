@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
+  AspectRatio,
   Box,
   Button,
   Center,
   Container,
   Divider,
+  Flex,
   FormControl,
   FormLabel,
   HStack,
+  Image,
   Input,
   NumberInput,
   NumberInputField,
@@ -19,6 +22,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { ipcRenderer } from 'electron';
 import { useHistory } from 'react-router';
+import Webcam from 'react-webcam';
 
 interface PatientFormInterface {
   firstname: string;
@@ -40,12 +44,38 @@ interface PatientFormInterface {
 const AddPatientPage: React.FC = () => {
   const history = useHistory();
   const { handleSubmit, register } = useForm<PatientFormInterface>();
-  const onSubmit = (values: PatientFormInterface) => {
-    ipcRenderer.send('new-patient-add', values);
+
+  // image input
+  const imageInput = useRef<HTMLInputElement>(null);
+  const [imgInput, setimgInput] = useState<'webcam' | 'file' | 'hide'>('hide');
+  const [imgSrc, setimgSrc] = useState<string>();
+
+  const onImageInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files?.length) {
+      const url = URL.createObjectURL(event.target.files[0]);
+      setimgInput('hide');
+      setimgSrc(url);
+
+      // free blob
+      URL.revokeObjectURL(url);
+    } else {
+      // eslint-disable-next-line no-console
+      console.error('no file');
+    }
   };
 
-  useEffect(() => {
-    ipcRenderer.on(
+  const webcamRef = useRef<Webcam & HTMLVideoElement>(null);
+  const webcamCapture = useCallback(() => {
+    const image = webcamRef.current?.getScreenshot();
+    if (image) {
+      setimgInput('hide');
+      setimgSrc(image);
+    }
+  }, [webcamRef]);
+
+  const onSubmit = (values: PatientFormInterface) => {
+    ipcRenderer.send('new-patient-add', { data: values, imgbase64: imgSrc });
+    ipcRenderer.once(
       'new-patient-add-res',
       (_, args: { res: string | boolean; error?: string }) => {
         // add patient is success
@@ -57,10 +87,7 @@ const AddPatientPage: React.FC = () => {
         }
       }
     );
-    return () => {
-      ipcRenderer.removeListener('register-new-user-res', () => {});
-    };
-  }, [history]);
+  };
 
   return (
     <Container maxW="4xl" bg="white" paddingY="7">
@@ -151,6 +178,64 @@ const AddPatientPage: React.FC = () => {
           </Box>
           <Box>
             <FormLabel htmlFor="dob_year">Patient Image</FormLabel>
+
+            <Flex
+              direction="row"
+              alignItems="center"
+              justifyContent="center"
+              textAlign="center"
+              paddingY="10px"
+            >
+              <Button
+                margin="3px"
+                onClick={() => {
+                  setimgInput('file');
+                  imageInput.current?.click();
+                }}
+              >
+                Select an image
+              </Button>
+              <Button
+                margin="3px"
+                onClick={() => {
+                  setimgInput('webcam');
+                }}
+              >
+                Open the camera
+              </Button>
+            </Flex>
+
+            <AspectRatio maxWidth="250px" ratio={1} marginX="auto">
+              <Flex direction="column">
+                {imgInput === 'webcam' ? (
+                  <>
+                    <Webcam
+                      ref={webcamRef}
+                      audio={false}
+                      mirrored
+                      screenshotFormat="image/jpeg"
+                    />
+                    <Button onClick={webcamCapture}>Capture</Button>
+                  </>
+                ) : (
+                  <Box />
+                )}
+
+                {imgSrc !== '' && imgInput === 'hide' ? (
+                  <Image src={imgSrc} />
+                ) : (
+                  <Box />
+                )}
+              </Flex>
+            </AspectRatio>
+
+            <Input
+              ref={imageInput}
+              type="file"
+              accept="image/*"
+              display="none"
+              onChange={onImageInputChange}
+            />
           </Box>
         </SimpleGrid>
 

@@ -6,17 +6,26 @@ import {
 } from '../database/patients';
 import { PatientInterface } from '../database/schemes/patient_scheme';
 
-export const AddNewPatient = async (
+import { OptimizeProfilePicture } from '../util/imgOpt';
+
+export const AddNewPatient = async ({
+  data,
+  imgbase64,
+}: {
   data: Omit<PatientInterface, 'firstname' | 'lastname'> & {
     firstname: string;
     lastname: string;
-  }
-): Promise<{ res: string | boolean; error?: string }> => {
+  };
+  imgbase64?: string;
+}): Promise<{ res: string | boolean; error?: string }> => {
   try {
     // data validation
     // TODO: Add more validation
     if (!data.firstname) return { res: false, error: 'empty-firstname' };
     if (!data.lastname) return { res: false, error: 'empty-lastname' };
+
+    // image optimizing
+    const img = imgbase64 ? await OptimizeProfilePicture(imgbase64) : undefined;
 
     // split first & last name into arrays
     const formatted: PatientInterface = {
@@ -25,7 +34,7 @@ export const AddNewPatient = async (
       lastname: data.lastname.trim().split(' '),
     };
 
-    const { res, error } = await DBAddNewPatient(formatted);
+    const { res, error } = await DBAddNewPatient(formatted, img);
     return { res, error };
   } catch (error) {
     return { res: false, error };

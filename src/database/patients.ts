@@ -26,7 +26,8 @@ const GenerateNewID = async (): Promise<string> => {
 };
 
 export const DBAddNewPatient = async (
-  data: PatientInterface
+  data: PatientInterface,
+  img?: string
 ): Promise<{ res: string | boolean; error?: string }> => {
   try {
     // create random unique id
@@ -36,7 +37,13 @@ export const DBAddNewPatient = async (
     }
 
     // insert data to database
-    const res = await PATIENTS.put({ _id: id, ...data });
+    const res = await PATIENTS.put({
+      _id: id,
+      _attachments: {
+        patient: { content_type: 'image/jpeg', data: img || '' },
+      },
+      ...data,
+    });
 
     if (res.ok) {
       return { res: id };
