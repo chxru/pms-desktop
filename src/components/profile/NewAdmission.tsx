@@ -17,6 +17,8 @@ import {
   SimpleGrid,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+import Select from 'react-select';
+import ConsultantName from '../../data/Consultant';
 
 interface NewAdmissionProps {
   isOpen: boolean;
@@ -35,7 +37,9 @@ interface NewAdmissionForm {
 }
 
 const NewAdmissionModal: React.FC<NewAdmissionProps> = ({
+  // eslint-disable-next-line react/prop-types
   isOpen,
+  // eslint-disable-next-line react/prop-types
   onClose,
 }) => {
   const { register, handleSubmit } = useForm<NewAdmissionForm>();
@@ -92,11 +96,16 @@ const NewAdmissionModal: React.FC<NewAdmissionProps> = ({
 
               <FormControl isRequired>
                 <FormLabel htmlFor="consultant_name" mt={4}>
-                  Consultant Name
+                  Consultant Name{' '}
                 </FormLabel>
-                <Input
+                <Select
+                  onChange={(value) => {
+                    console.log(value);
+                  }}
+                  options={ConsultantName}
                   name="consultant_name"
-                  ref={register({ required: true })}
+                  isFocused
+                  placeholder="Select Consultant Name"
                 />
               </FormControl>
             </form>

@@ -120,7 +120,7 @@ const ProfileView: React.FC = () => {
         </Box>
       </Flex>
 
-      <Tabs isFitted variant="enclosed" mt={10}>
+      <Tabs isFitted isLazy variant="enclosed" mt={10}>
         <TabList fontWeight="bold">
           <Tab>Current Admision</Tab>
           <Tab>History</Tab>
