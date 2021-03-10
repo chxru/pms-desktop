@@ -78,25 +78,6 @@ const PreviousAdmission: React.FC<PreviousAdmissionProps> = ({}) => {
             <TableRow />
           </Tbody>
         </Table>
-
-        {/* Drugs History */}
-        <Text fontSize="lg" fontWeight="bold" mt={10}>
-          Drugs
-        </Text>
-
-        <Divider mb={5} />
-
-        <Table size="md" variant="simple">
-          <Thead>
-            <Tr>
-              <Th fontSize="md">Drug Name</Th>
-              <Th fontSize="md">Dose</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            <TableRow />
-          </Tbody>
-        </Table>
       </AccordionPanel>
     </AccordionItem>
   );

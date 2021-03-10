@@ -166,40 +166,6 @@ const BedTicket: React.FC = () => {
         </Table>
       </Box>
 
-      {/* Drugs */}
-      <Box>
-        <Flex
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          paddingTop="7px"
-        >
-          <Text fontSize="lg" fontWeight="bold">
-            Drugs
-          </Text>
-
-          <Button onClick={diagOnOpen} size="sm" marginY="3">
-            Add New Drug Report
-          </Button>
-        </Flex>
-
-        <Divider mb={5} />
-
-        {/* Reports data table */}
-        <Table size="md">
-          <Thead>
-            <Tr>
-              <Th fontSize="md">Name</Th>
-              <Th fontSize="md">Dose</Th>
-              <Th />
-            </Tr>
-          </Thead>
-          <Tbody>
-            <TableRow />
-          </Tbody>
-        </Table>
-      </Box>
-
       {/* Discharge button */}
       <Flex width="full" justifyContent="center" alignContent="center" mt={10}>
         <Button
