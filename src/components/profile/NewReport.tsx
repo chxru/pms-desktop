@@ -13,27 +13,25 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import Select from 'react-select';
-import Diagnosis from '../../data/DiagnosisType';
 
-interface NewDiagnosisProps {
+interface NewReportProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface NewDiagnosisForm {
+interface NewReportForm {
   diagType: string;
   remark: string;
 }
 
-const NewDiagnosisModal: React.FC<NewDiagnosisProps> = ({
+const NewReportModal: React.FC<NewReportProps> = ({
   // eslint-disable-next-line react/prop-types
   isOpen,
   // eslint-disable-next-line react/prop-types
   onClose,
 }) => {
-  const { register, handleSubmit } = useForm<NewDiagnosisForm>();
-  const onSubmit = (value: NewDiagnosisForm) => {
+  const { register, handleSubmit } = useForm<NewReportForm>();
+  const onSubmit = (value: NewReportForm) => {
     console.log(value);
   };
 
@@ -41,20 +39,21 @@ const NewDiagnosisModal: React.FC<NewDiagnosisProps> = ({
     <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Add New Dignosis</ModalHeader>
+        <ModalHeader>Add New Report</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <FormControl isRequired>
-              <FormLabel htmlFor="Diagnosis Type"> Diagnosis Type</FormLabel>
-              <Select
-                onChange={(value) => {
-                  console.log(value);
-                }}
-                options={Diagnosis}
-                name="Dignosis Type"
-                isFocused
-                placeholder="Select Diagnosis Type"
+              <FormLabel htmlFor="report type">Report Type</FormLabel>
+              <Input name="report type" ref={register({ required: true })} />
+            </FormControl>
+
+            <FormControl isRequired mt={6}>
+              <FormLabel htmlFor="report">Report</FormLabel>
+              <Input
+                type="file"
+                name="report"
+                ref={register({ required: true })}
               />
             </FormControl>
 
@@ -78,4 +77,4 @@ const NewDiagnosisModal: React.FC<NewDiagnosisProps> = ({
   );
 };
 
-export default NewDiagnosisModal;
+export default NewReportModal;

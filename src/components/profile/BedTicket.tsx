@@ -21,6 +21,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import NewDiagnosisModal from './NewDiagnosis';
+import NewReortModal from './NewReport';
 import DischargeModal from './DischargeModal';
 
 const RemoveDialog: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
@@ -84,6 +85,12 @@ const BedTicket: React.FC = () => {
   } = useDisclosure();
 
   const {
+    isOpen: reportIsOpen,
+    onOpen: reportOnOpen,
+    onClose: reportOnClose,
+  } = useDisclosure();
+
+  const {
     isOpen: dischargeIsopen,
     onOpen: dischargeOnopen,
     onClose: dischargeOnclose,
@@ -137,7 +144,7 @@ const BedTicket: React.FC = () => {
             Reports
           </Text>
 
-          <Button onClick={diagOnOpen} size="sm" marginY="3">
+          <Button onClick={reportOnOpen} size="sm" marginY="3">
             Add New Report
           </Button>
         </Flex>
@@ -206,7 +213,7 @@ const BedTicket: React.FC = () => {
 
       {/* new diagnosis form modal */}
       <NewDiagnosisModal isOpen={diagIsOpen} onClose={diagOnClose} />
-
+      <NewReortModal isOpen={reportIsOpen} onClose={reportOnClose} />
       <DischargeModal isOpen={dischargeIsopen} onClose={dischargeOnclose} />
     </>
   );
