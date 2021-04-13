@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect,
-} from 'react-router-dom';
+/* eslint-disable no-nested-ternary */
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { Box, ChakraProvider, extendTheme, Flex } from '@chakra-ui/react';
+import { ipcRenderer } from 'electron';
 
 import Topbar from './components/Topbar';
 
@@ -16,6 +13,7 @@ import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import AddPatientPage from './pages/AddPatient';
 import ProfileView from './pages/Profile';
+import SplashScreen from './pages/Splash';
 
 const theme = extendTheme({
   colors: {
@@ -34,9 +32,25 @@ const theme = extendTheme({
 });
 
 export default function App() {
+  const [firstUser, setfirstUser] = useState<boolean | 'pending'>('pending');
   const [isLoggedIn, setisLoggedIn] = useState<boolean>(false);
   const signIn = () => setisLoggedIn(true);
   const signOut = () => setisLoggedIn(false);
+
+  useEffect(() => {
+    ipcRenderer.send('check-for-users');
+    ipcRenderer.once(
+      'check-for-users-res',
+      (_, args: { res: boolean; error?: string }) => {
+        if (args.error) {
+          // eslint-disable-next-line no-console
+          console.error(args.error);
+          return;
+        }
+        setfirstUser(args.res);
+      }
+    );
+  }, []);
 
   return (
     <Router>
@@ -46,26 +60,26 @@ export default function App() {
         >
           <Flex direction="row" width="100vw" h="100vh">
             {isLoggedIn ? (
-              <>
-                <Box overflowY="auto" w="full">
-                  <Topbar />
-                  <Box marginTop="60px">
-                    <Switch>
-                      <Route path="/profile/:id" component={ProfileView} />
-                      <Route path="/addPatient" component={AddPatientPage} />
-                      <Route path="/" component={HomePage} />
-                    </Switch>
-                  </Box>
+              <Box overflowY="auto" w="full">
+                <Topbar />
+                <Box marginTop="60px">
+                  <Switch>
+                    <Route path="/profile/:id" component={ProfileView} />
+                    <Route path="/addPatient" component={AddPatientPage} />
+                    <Route path="/" component={HomePage} />
+                  </Switch>
                 </Box>
-              </>
+              </Box>
             ) : (
               <Box>
                 <Switch>
-                  <Route path="/register" component={RegisterPage} />
-                  <Route path="/" component={LoginPage} />
-                  <Route exact path="/">
-                    <Redirect to="/login" />
-                  </Route>
+                  {firstUser === 'pending' ? (
+                    <Route path="/" component={SplashScreen} />
+                  ) : firstUser ? (
+                    <Route path="/" component={LoginPage} />
+                  ) : (
+                    <Route path="/" component={RegisterPage} />
+                  )}
                 </Switch>
               </Box>
             )}

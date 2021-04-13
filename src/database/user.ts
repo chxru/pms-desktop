@@ -43,6 +43,21 @@ const searchByUsername = async (
   }
 };
 
+export const DBCheckForAnyUsers = async (): Promise<{
+  res: boolean;
+  error?: string;
+}> => {
+  try {
+    const info = await USERS.info();
+    if (info.doc_count > 0) {
+      return { res: true };
+    }
+    return { res: false, error: 'No user records' };
+  } catch (error) {
+    return { res: false, error };
+  }
+};
+
 export const DBCheckUserPassword = async (
   username: string,
   password: string

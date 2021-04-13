@@ -17,7 +17,11 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 
 /* ipc */
-import { CheckUsernamePassword, CreateNewUser } from './ipc/auth';
+import {
+  CheckForAnyUsers,
+  CheckUsernamePassword,
+  CreateNewUser,
+} from './ipc/auth';
 import {
   AddNewPatient,
   GetPatientByID,
@@ -25,6 +29,12 @@ import {
 } from './ipc/patient';
 
 /* ipc-auth */
+// check a user record available inside the db
+ipcMain.on('check-for-users', async (evt) => {
+  const res = await CheckForAnyUsers();
+  evt.reply('check-for-users-res', res);
+});
+
 // check username with password
 ipcMain.on('check-uname-pwd', async (evt, args) => {
   const res = await CheckUsernamePassword(args.username, args.password);

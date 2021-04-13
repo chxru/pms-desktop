@@ -1,5 +1,17 @@
 /* eslint-disable import/prefer-default-export */
-import { DBCheckUserPassword, DBCreateNewAccount } from '../database/user';
+import {
+  DBCheckForAnyUsers,
+  DBCheckUserPassword,
+  DBCreateNewAccount,
+} from '../database/user';
+
+export const CheckForAnyUsers = async (): Promise<{
+  res: boolean;
+  error?: string;
+}> => {
+  const { res, error } = await DBCheckForAnyUsers();
+  return { res, error };
+};
 
 export const CheckUsernamePassword = async (
   username: string,

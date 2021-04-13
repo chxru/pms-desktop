@@ -12,7 +12,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { useHistory } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
 
 import AuthContext from '../context/auth-context';
@@ -24,7 +23,6 @@ interface LoginForm {
 
 const LoginPage: React.FC = () => {
   const auth = useContext(AuthContext);
-  const history = useHistory();
   const { handleSubmit, errors, register } = useForm<LoginForm>();
 
   // listen to ipc
@@ -89,14 +87,8 @@ const LoginPage: React.FC = () => {
               <Button type="submit" m="2" colorScheme="teal">
                 Login
               </Button>
-              <Button
-                m="2"
-                size="sm"
-                onClick={() => {
-                  history.push('/register');
-                }}
-              >
-                Create an account
+              <Button m="2" size="sm">
+                Forgot my password
               </Button>
             </Flex>
           </form>
