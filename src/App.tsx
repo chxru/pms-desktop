@@ -42,11 +42,6 @@ export default function App() {
     ipcRenderer.once(
       'check-for-users-res',
       (_, args: { res: boolean; error?: string }) => {
-        if (args.error) {
-          // eslint-disable-next-line no-console
-          console.error(args.error);
-          return;
-        }
         setfirstUser(args.res);
       }
     );
