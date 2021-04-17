@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import {
   Box,
   Button,
@@ -6,7 +6,7 @@ import {
   Container,
   Flex,
   FormControl,
-  FormErrorMessage,
+  FormHelperText,
   FormLabel,
   Input,
   Text,
@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form';
 import { ipcRenderer } from 'electron';
 
 import AuthContext from '../context/auth-context';
+import NotifyContext from '../context/notify-context';
 
 interface LoginForm {
   username: string;
@@ -23,28 +24,28 @@ interface LoginForm {
 
 const LoginPage: React.FC = () => {
   const auth = useContext(AuthContext);
+  const notify = useContext(NotifyContext);
+
   const { handleSubmit, errors, register } = useForm<LoginForm>();
 
-  // listen to ipc
-  useEffect(() => {
-    ipcRenderer.on(
+  // form submit
+  const onSubmit = (values: LoginForm) => {
+    ipcRenderer.send('check-uname-pwd', values);
+    ipcRenderer.once(
       'check-uname-pwd-res',
       (_, args: { res: boolean; error?: string }) => {
         if (args.res) {
           auth.SignIn();
+          notify.NewAlert({ msg: 'User authenticated', status: 'success' });
+        } else {
+          notify.NewAlert({
+            msg: 'User authentication failed',
+            status: 'error',
+            description: args.error,
+          });
         }
       }
     );
-    return () => {
-      ipcRenderer.removeListener('check-uname-pwd-res', () => {});
-    };
-  }, [auth]);
-
-  // form submit
-  const onSubmit = (values: LoginForm) => {
-    // eslint-disable-next-line no-console
-    console.log(values);
-    ipcRenderer.send('check-uname-pwd', values);
   };
 
   return (
@@ -68,6 +69,9 @@ const LoginPage: React.FC = () => {
                 placeholder="username"
                 ref={register({ required: true })}
               />
+              {errors.username && (
+                <FormHelperText>This field is required</FormHelperText>
+              )}
             </FormControl>
             <FormControl>
               <FormLabel htmlFor="password">Password</FormLabel>
@@ -77,11 +81,10 @@ const LoginPage: React.FC = () => {
                 type="password"
                 ref={register({ required: true })}
               />
+              {errors.password && (
+                <FormHelperText>This field is required</FormHelperText>
+              )}
             </FormControl>
-            <FormErrorMessage>
-              {errors.username && errors.username.message}
-              {errors.password && errors.password.message}
-            </FormErrorMessage>
 
             <Flex direction="column">
               <Button type="submit" m="2" colorScheme="teal">

@@ -5,6 +5,7 @@ import { Box, ChakraProvider, extendTheme, Flex } from '@chakra-ui/react';
 import { ipcRenderer } from 'electron';
 
 import Topbar from './components/Topbar';
+import Overlay from './components/Overlay';
 
 import AuthContext from './context/auth-context';
 
@@ -54,30 +55,32 @@ export default function App() {
           value={{ AuthStatus: isLoggedIn, SignIn: signIn, SignOut: signOut }}
         >
           <Flex direction="row" width="100vw" h="100vh">
-            {isLoggedIn ? (
-              <Box overflowY="auto" w="full">
-                <Topbar />
-                <Box marginTop="60px">
+            <Overlay>
+              {isLoggedIn ? (
+                <Box overflowY="auto" w="full">
+                  <Topbar />
+                  <Box marginTop="60px">
+                    <Switch>
+                      <Route path="/profile/:id" component={ProfileView} />
+                      <Route path="/addPatient" component={AddPatientPage} />
+                      <Route path="/" component={HomePage} />
+                    </Switch>
+                  </Box>
+                </Box>
+              ) : (
+                <Box>
                   <Switch>
-                    <Route path="/profile/:id" component={ProfileView} />
-                    <Route path="/addPatient" component={AddPatientPage} />
-                    <Route path="/" component={HomePage} />
+                    {firstUser === 'pending' ? (
+                      <Route path="/" component={SplashScreen} />
+                    ) : firstUser ? (
+                      <Route path="/" component={LoginPage} />
+                    ) : (
+                      <Route path="/" component={RegisterPage} />
+                    )}
                   </Switch>
                 </Box>
-              </Box>
-            ) : (
-              <Box>
-                <Switch>
-                  {firstUser === 'pending' ? (
-                    <Route path="/" component={SplashScreen} />
-                  ) : firstUser ? (
-                    <Route path="/" component={LoginPage} />
-                  ) : (
-                    <Route path="/" component={RegisterPage} />
-                  )}
-                </Switch>
-              </Box>
-            )}
+              )}
+            </Overlay>
           </Flex>
         </AuthContext.Provider>
       </ChakraProvider>
