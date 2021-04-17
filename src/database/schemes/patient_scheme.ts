@@ -1,6 +1,7 @@
 export interface PatientInterface {
-  firstname: string[];
-  lastname: string[];
+  keywords: string[];
+  firstname: string;
+  lastname: string;
   dob_year: number;
   dob_month: number;
   dob_date: number;

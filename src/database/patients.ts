@@ -9,7 +9,7 @@ const GenerateNewID = async (): Promise<string> => {
     await PATIENTS.get(id);
 
     /*
-    if above code did not find a patient for give id, it throws
+    if above code did not find a patient for given id, it throws
     an error
 
     which means unique id is returning inside catch {}
@@ -32,7 +32,7 @@ export const DBAddNewPatient = async (
   try {
     // create random unique id
     const id = await GenerateNewID();
-    if (id.startsWith('!')) {
+    if (id.startsWith('!error')) {
       return { res: false, error: id };
     }
 
@@ -63,15 +63,14 @@ export const DBSearchByName = async (
   try {
     const indexRes = await PATIENTS.createIndex({
       index: {
-        fields: ['firstname'],
+        fields: ['keywords'],
       },
     });
 
     if (indexRes.result === 'created' || indexRes.result === 'exists') {
       const res = await PATIENTS.find({
-        selector: { firstname: { $elemMatch: name } },
+        selector: { keywords: { $elemMatch: name } },
         fields: ['_id', 'firstname', 'lastname'],
-        sort: ['firstname'],
       });
 
       return { res: res.docs };

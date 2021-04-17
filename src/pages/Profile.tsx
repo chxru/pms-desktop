@@ -77,7 +77,7 @@ const ProfileView: React.FC = () => {
         <Box flex="1">
           {/* patient name */}
           <Text fontSize="xl" fontWeight="bold" paddingLeft="7">
-            {patient?.firstname.join(' ')} {patient?.lastname.join(' ')}
+            {patient?.firstname} {patient?.lastname}
           </Text>
 
           <SimpleGrid columns={{ sm: 1, md: 2 }} pt={5}>

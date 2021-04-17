@@ -52,7 +52,7 @@ const Topbar: React.FC = () => {
           error?: string;
         }
       ) => {
-        if (args.res.length) {
+        if (args.res?.length) {
           setsearchState('found');
           setsearchResult([...args.res]);
         } else {

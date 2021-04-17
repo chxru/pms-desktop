@@ -12,10 +12,7 @@ export const AddNewPatient = async ({
   data,
   imgbase64,
 }: {
-  data: Omit<PatientInterface, 'firstname' | 'lastname'> & {
-    firstname: string;
-    lastname: string;
-  };
+  data: PatientInterface;
   imgbase64?: string;
 }): Promise<{ res: string | boolean; error?: string }> => {
   try {
@@ -30,8 +27,16 @@ export const AddNewPatient = async ({
     // split first & last name into arrays
     const formatted: PatientInterface = {
       ...data,
-      firstname: data.firstname.trim().split(' '),
-      lastname: data.lastname.trim().split(' '),
+      keywords: [
+        ...data.firstname
+          .trim()
+          .split(' ')
+          .map((e) => e.toLocaleLowerCase()),
+        ...data.lastname
+          .trim()
+          .split(' ')
+          .map((e) => e.toLocaleLowerCase()),
+      ],
     };
 
     const { res, error } = await DBAddNewPatient(formatted, img);
@@ -47,7 +52,8 @@ export const SearchPatientByName = async (
   res: PouchDB.Core.ExistingDocument<PatientInterface>[] | undefined;
   error: string | undefined;
 }> => {
-  const { res, error } = await DBSearchByName(name);
+  const n = name.toLocaleLowerCase();
+  const { res, error } = await DBSearchByName(n);
   return { res, error };
 };
 
