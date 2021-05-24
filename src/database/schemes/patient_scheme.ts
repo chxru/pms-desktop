@@ -1,4 +1,5 @@
 export interface PatientInterface {
+  _id?: string;
   keywords: string[];
   firstname: string;
   lastname: string;
@@ -14,4 +15,9 @@ export interface PatientInterface {
   gurardian_addr_house: string;
   gurardian_addr_street: string;
   gurardian_addr_city: string;
+}
+
+export interface PatientInterfaceEncrypted {
+  keywords: string[];
+  data: string;
 }

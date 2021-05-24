@@ -1,10 +1,13 @@
-/* eslint-disable import/prefer-default-export */
-import crypto from 'crypto';
+import { randomBytes } from 'crypto';
+import { CipherDecrypt, CipherEncrypt } from './crypto/cipher';
 import { PATIENTS } from './database';
-import { PatientInterface } from './schemes/patient_scheme';
+import {
+  PatientInterface,
+  PatientInterfaceEncrypted,
+} from './schemes/patient_scheme';
 
 const GenerateNewID = async (): Promise<string> => {
-  const id = crypto.randomBytes(4).toString('hex');
+  const id = randomBytes(4).toString('hex');
   try {
     await PATIENTS.get(id);
 
@@ -25,8 +28,8 @@ const GenerateNewID = async (): Promise<string> => {
   }
 };
 
-export const DBAddNewPatient = async (
-  data: PatientInterface,
+const DBAddNewPatient = async (
+  doc: PatientInterface,
   img?: string
 ): Promise<{ res: string | boolean; error?: string }> => {
   try {
@@ -35,6 +38,11 @@ export const DBAddNewPatient = async (
     if (id.startsWith('!error')) {
       return { res: false, error: id };
     }
+    // eslint-disable-next-line no-underscore-dangle
+    doc._id = id;
+
+    // Encrypt data
+    const data = await CipherEncrypt(JSON.stringify(doc));
 
     // insert data to database
     const res = await PATIENTS.put({
@@ -42,7 +50,8 @@ export const DBAddNewPatient = async (
       _attachments: {
         patient: { content_type: 'image/jpeg', data: img || '' },
       },
-      ...data,
+      keywords: doc.keywords,
+      data,
     });
 
     if (res.ok) {
@@ -54,10 +63,22 @@ export const DBAddNewPatient = async (
   }
 };
 
-export const DBSearchByName = async (
+const decrpytdoc = async (
+  docs: PouchDB.Core.ExistingDocument<PatientInterfaceEncrypted>[]
+) => {
+  const temp = [];
+  // eslint-disable-next-line no-restricted-syntax
+  for (const doc of docs) {
+    temp.push(CipherDecrypt(doc.data));
+  }
+
+  return Promise.all(temp);
+};
+
+const DBSearchByName = async (
   name: string
 ): Promise<{
-  res?: PouchDB.Core.ExistingDocument<PatientInterface>[];
+  res?: PatientInterface[];
   error?: string;
 }> => {
   try {
@@ -70,10 +91,13 @@ export const DBSearchByName = async (
     if (indexRes.result === 'created' || indexRes.result === 'exists') {
       const res = await PATIENTS.find({
         selector: { keywords: { $elemMatch: name } },
-        fields: ['_id', 'firstname', 'lastname'],
+        fields: ['_id', 'data'],
       });
 
-      return { res: res.docs };
+      // decrypt data
+      const decrypted = await decrpytdoc(res.docs);
+
+      return { res: decrypted };
     }
     return { error: 'DBSearchByName createIndex failed' };
   } catch (error) {
@@ -81,14 +105,17 @@ export const DBSearchByName = async (
   }
 };
 
-export const DBSearchByID = async (id: string) => {
+const DBSearchByID = async (id: string) => {
   try {
     const doc = await PATIENTS.get(id, { attachments: true });
+    const decrypted = await CipherDecrypt(doc.data);
     if (doc) {
-      return { res: doc };
+      return { res: decrypted };
     }
     return { res: false, error: `User ${id} not found` };
   } catch (error) {
     return { res: false, error };
   }
 };
+
+export { DBAddNewPatient, DBSearchByName, DBSearchByID };

@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import {
   DBAddNewPatient,
   DBSearchByID,
@@ -8,7 +7,7 @@ import { PatientInterface } from '../database/schemes/patient_scheme';
 
 import { OptimizeProfilePicture } from '../util/imgOpt';
 
-export const AddNewPatient = async ({
+const AddNewPatient = async ({
   data,
   imgbase64,
 }: {
@@ -46,10 +45,10 @@ export const AddNewPatient = async ({
   }
 };
 
-export const SearchPatientByName = async (
+const SearchPatientByName = async (
   name: string
 ): Promise<{
-  res: PouchDB.Core.ExistingDocument<PatientInterface>[] | undefined;
+  res: PatientInterface[] | undefined;
   error: string | undefined;
 }> => {
   const n = name.toLocaleLowerCase();
@@ -57,7 +56,7 @@ export const SearchPatientByName = async (
   return { res, error };
 };
 
-export const GetPatientByID = async (id: string) => {
+const GetPatientByID = async (id: string) => {
   if (!id) {
     return { res: false, error: 'empty id' };
   }
@@ -65,3 +64,5 @@ export const GetPatientByID = async (id: string) => {
   const { res, error } = await DBSearchByID(id);
   return { res, error };
 };
+
+export { AddNewPatient, SearchPatientByName, GetPatientByID };

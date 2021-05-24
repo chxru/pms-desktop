@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import bcryptjs from 'bcryptjs';
 import { USERS } from './database';
 import { UserInterface } from './schemes/user_scheme';
@@ -43,7 +42,7 @@ const searchByUsername = async (
   }
 };
 
-export const DBCheckForAnyUsers = async (): Promise<{
+const DBCheckForAnyUsers = async (): Promise<{
   res: boolean;
   error?: string;
 }> => {
@@ -58,7 +57,7 @@ export const DBCheckForAnyUsers = async (): Promise<{
   }
 };
 
-export const DBCheckUserPassword = async (
+const DBCheckUserPassword = async (
   username: string,
   password: string
 ): Promise<{ res: boolean; error?: string }> => {
@@ -83,12 +82,12 @@ export const DBCheckUserPassword = async (
   }
 };
 
-export const DBCreateNewAccount = async (
+const DBCreateNewAccount = async (
   username: string,
   password: string
 ): Promise<{ res: boolean; error?: string }> => {
   try {
-    // make sure username is unique
+    // make sure username is unique, not useful in signle user instance
     const isUnique = await searchByUsername(username);
     if (isUnique.user) {
       return { res: false, error: 'Username is not unique' };
@@ -97,7 +96,12 @@ export const DBCreateNewAccount = async (
     // bcrypt stuff
     const salt = await bcryptjs.genSalt();
     const hash = await bcryptjs.hash(password, salt);
-    const res = await USERS.post({ username: username.trim(), password: hash });
+
+    // save user data in database
+    const res = await USERS.post({
+      username: username.trim(),
+      password: hash,
+    });
 
     if (res.ok) {
       return { res: true };
@@ -107,3 +111,5 @@ export const DBCreateNewAccount = async (
     return { res: false, error: 'Unknown error' };
   }
 };
+
+export { DBCheckForAnyUsers, DBCheckUserPassword, DBCreateNewAccount };

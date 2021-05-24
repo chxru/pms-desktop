@@ -1,11 +1,12 @@
-/* eslint-disable import/prefer-default-export */
+import { MEMCacheEncryptData } from '../database/memcache';
+import { SavePBKDFSalt } from '../database/metadata';
 import {
   DBCheckForAnyUsers,
   DBCheckUserPassword,
   DBCreateNewAccount,
 } from '../database/user';
 
-export const CheckForAnyUsers = async (): Promise<{
+const CheckForAnyUsers = async (): Promise<{
   res: boolean;
   error?: string;
 }> => {
@@ -13,7 +14,7 @@ export const CheckForAnyUsers = async (): Promise<{
   return { res, error };
 };
 
-export const CheckUsernamePassword = async (
+const CheckUsernamePassword = async (
   username: string,
   password: string
 ): Promise<{ res: boolean; error?: string }> => {
@@ -23,10 +24,16 @@ export const CheckUsernamePassword = async (
   }
 
   const { res, error } = await DBCheckUserPassword(username, password);
+
+  // if new user is successfully logged in
+  if (res) {
+    // generate encrypt key and save in memcache
+    await MEMCacheEncryptData(password);
+  }
   return { res, error };
 };
 
-export const CreateNewUser = async (
+const CreateNewUser = async (
   username: string,
   password: string
 ): Promise<{ res: boolean; error?: string }> => {
@@ -37,8 +44,20 @@ export const CreateNewUser = async (
     }
 
     const { res, error } = await DBCreateNewAccount(username, password);
+
+    // if new user is successfully created
+    if (res) {
+      // create and save salt in metadata database
+      await SavePBKDFSalt();
+
+      // generate encrypt key and save in memcache
+      await MEMCacheEncryptData(password);
+    }
+
     return { res, error };
   } catch (error) {
     return { res: false, error };
   }
 };
+
+export { CheckForAnyUsers, CheckUsernamePassword, CreateNewUser };
