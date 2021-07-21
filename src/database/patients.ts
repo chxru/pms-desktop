@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { randomBytes } from 'crypto';
 import { CipherDecrypt, CipherEncrypt } from './crypto/cipher';
 import { PATIENTS } from './database';
@@ -134,4 +135,30 @@ const DBSearchByID = async (id: string): Promise<PatientInterface> => {
   throw new Error(`User ${id} not found`);
 };
 
-export { DBAddNewPatient, DBSearchByName, DBSearchByID };
+/**
+ * Update patient document in database
+ *
+ * @param {string} id
+ * @param {PatientInterface} data un-encrypted data
+ * @return {*}  {Promise<void>}
+ */
+const DBUpdateRecord = async (
+  id: string,
+  data: PatientInterface
+): Promise<void> => {
+  // encrypt the data
+  const encrypted = await CipherEncrypt(JSON.stringify(data));
+
+  // fetch original document
+  const doc = await PATIENTS.get(id);
+
+  // update the document
+  await PATIENTS.put({
+    _id: doc._id,
+    _rev: doc._rev,
+    keywords: doc.keywords,
+    data: encrypted,
+  });
+};
+
+export { DBAddNewPatient, DBSearchByName, DBSearchByID, DBUpdateRecord };

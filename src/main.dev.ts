@@ -27,8 +27,9 @@ import {
   GetPatientByID,
   SearchPatientByName,
 } from './ipc/patient';
+import { CloseBedTicket, OpenNewBedTicket } from './ipc/bedticket';
 
-/* ipc-auth */
+// #region ipc-auth
 // check a user record available inside the db
 ipcMain.on('check-for-users', async (evt) => {
   const res = await CheckForAnyUsers();
@@ -46,8 +47,9 @@ ipcMain.on('register-new-user', async (evt, args) => {
   const res = await CreateNewUser(args.username, args.password);
   evt.reply('register-new-user-res', res);
 });
+// #endregion
 
-/* ipc-patient */
+// #region ipc-patient
 // add new patient
 ipcMain.on('new-patient-add', async (evt, args) => {
   const res = await AddNewPatient(args);
@@ -65,6 +67,21 @@ ipcMain.on('get-patient-by-id', async (evt, args) => {
   const res = await GetPatientByID(args);
   evt.reply('get-patient-by-id-res', res);
 });
+// #endregion
+
+// #region ipc-bedticket
+// open new bed ticket
+ipcMain.on('open-bedticket', async (evt, args) => {
+  const res = await OpenNewBedTicket(args.patient, args.data);
+  evt.reply('open-bedticket-res', res);
+});
+
+// close bed ticket
+ipcMain.on('close-bedticket', async (evt, args) => {
+  const res = await CloseBedTicket(args.patient, args.bedticket);
+  evt.reply('close-bedticket-res', res);
+});
+// #endregion
 
 export default class AppUpdater {
   constructor() {

@@ -15,9 +15,13 @@ export interface PatientInterface {
   gurardian_addr_house: string;
   gurardian_addr_street: string;
   gurardian_addr_city: string;
+  current_bedticket: string | false;
+  previous_bedtickets: string[];
 }
 
 export interface PatientInterfaceEncrypted {
+  _id?: string;
+  _rev?: string;
   keywords: string[];
   data: string;
 }

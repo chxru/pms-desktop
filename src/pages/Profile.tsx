@@ -129,30 +129,42 @@ const ProfileView: React.FC = () => {
         {/* Current admission tab */}
         <TabPanels>
           <TabPanel>
-            <Flex width="full" justifyContent="center" alignContent="center">
-              <Button
-                onClick={() => {
-                  admissionOnOpen();
-                }}
-              >
-                Add Addmision Details
-              </Button>
-            </Flex>
-
-            <NewAdmissionModal
-              isOpen={admissionIsOpen}
-              onClose={admissionOnClose}
-            />
-
-            <BedTicket />
+            {patient?.current_bedticket ? (
+              <BedTicket />
+            ) : (
+              <>
+                <Flex
+                  width="full"
+                  justifyContent="center"
+                  alignContent="center"
+                >
+                  <Button
+                    onClick={() => {
+                      admissionOnOpen();
+                    }}
+                  >
+                    Add Addmision Details
+                  </Button>
+                </Flex>
+                <NewAdmissionModal
+                  isOpen={admissionIsOpen}
+                  onClose={admissionOnClose}
+                />
+              </>
+            )}
           </TabPanel>
 
           {/* History of the patient tab */}
           <TabPanel>
             <Accordion allowToggle allowMultiple>
-              <PreviousAdmission />
-              <PreviousAdmission />
-              <PreviousAdmission />
+              {!patient?.previous_bedtickets ||
+              patient?.previous_bedtickets.length === 0 ? (
+                <Text>No previous bed ticket records</Text>
+              ) : (
+                patient?.previous_bedtickets.map((bd) => (
+                  <PreviousAdmission key={bd} />
+                ))
+              )}
             </Accordion>
           </TabPanel>
         </TabPanels>

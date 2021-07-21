@@ -7,6 +7,7 @@ import { PatientInterfaceEncrypted } from './schemes/patient_scheme';
 import { UserInterface } from './schemes/user_scheme';
 import { MetadataInterface } from './schemes/metadata_scheme';
 import { MemCacheInterface } from './schemes/memcache_scheme';
+import { BedTicketInterface } from './schemes/bedticket_scheme';
 
 /* plugins */
 PouchDB.plugin(require('pouchdb-adapter-leveldb'));
@@ -18,6 +19,10 @@ export const USERS = new PouchDB<UserInterface>('db/users', {
 });
 
 export const PATIENTS = new PouchDB<PatientInterfaceEncrypted>('db/patients', {
+  adapter: 'leveldb',
+});
+
+export const BEDTICKETS = new PouchDB<BedTicketInterface>('db/bedtickets', {
   adapter: 'leveldb',
 });
 
