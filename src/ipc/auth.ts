@@ -7,11 +7,15 @@ import {
 } from '../database/user';
 
 const CheckForAnyUsers = async (): Promise<{
-  res: boolean;
+  res?: boolean;
   error?: string;
 }> => {
-  const { res, error } = await DBCheckForAnyUsers();
-  return { res, error };
+  try {
+    const doesAnyUsersExist = await DBCheckForAnyUsers();
+    return { res: doesAnyUsersExist };
+  } catch (error) {
+    return { error };
+  }
 };
 
 const CheckUsernamePassword = async (
@@ -43,18 +47,17 @@ const CreateNewUser = async (
       return { res: false, error: 'Invalid inputs' };
     }
 
-    const { res, error } = await DBCreateNewAccount(username, password);
+    // create new account
+    await DBCreateNewAccount(username, password);
 
     // if new user is successfully created
-    if (res) {
-      // create and save salt in metadata database
-      await SavePBKDFSalt();
+    // create and save salt in metadata database
+    await SavePBKDFSalt();
 
-      // generate encrypt key and save in memcache
-      await MEMCacheEncryptData(password);
-    }
+    // generate encrypt key and save in memcache
+    await MEMCacheEncryptData(password);
 
-    return { res, error };
+    return { res: true };
   } catch (error) {
     return { res: false, error };
   }

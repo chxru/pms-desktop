@@ -22,8 +22,7 @@ const MEMCacheGetEncryptKey: () => Promise<string> = () => {
   return new Promise((resolve, reject) => {
     MEMCACHE.findOne({ key: 'encrypt_key' }, (err, doc) => {
       if (err) {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject(`!error ${err}`);
+        reject(err);
       }
       resolve(doc.value);
     });

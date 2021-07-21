@@ -38,8 +38,8 @@ const AddNewPatient = async ({
       ],
     };
 
-    const { res, error } = await DBAddNewPatient(formatted, img);
-    return { res, error };
+    await DBAddNewPatient(formatted, img);
+    return { res: true };
   } catch (error) {
     return { res: false, error };
   }
@@ -48,12 +48,16 @@ const AddNewPatient = async ({
 const SearchPatientByName = async (
   name: string
 ): Promise<{
-  res: PatientInterface[] | undefined;
-  error: string | undefined;
+  res: PatientInterface[];
+  error?: string | undefined;
 }> => {
-  const n = name.toLocaleLowerCase();
-  const { res, error } = await DBSearchByName(n);
-  return { res, error };
+  try {
+    const n = name.toLocaleLowerCase();
+    const res = await DBSearchByName(n);
+    return { res };
+  } catch (error) {
+    return { res: [], error };
+  }
 };
 
 const GetPatientByID = async (id: string) => {
@@ -61,8 +65,12 @@ const GetPatientByID = async (id: string) => {
     return { res: false, error: 'empty id' };
   }
 
-  const { res, error } = await DBSearchByID(id);
-  return { res, error };
+  try {
+    const res = await DBSearchByID(id);
+    return { res };
+  } catch (error) {
+    return { res: false, error };
+  }
 };
 
 export { AddNewPatient, SearchPatientByName, GetPatientByID };

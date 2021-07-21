@@ -6,6 +6,11 @@ import {
   PatientInterfaceEncrypted,
 } from './schemes/patient_scheme';
 
+/**
+ * Generate unique ID
+ *
+ * @return {*}  {Promise<string>}
+ */
 const GenerateNewID = async (): Promise<string> => {
   const id = randomBytes(4).toString('hex');
   try {
@@ -24,98 +29,109 @@ const GenerateNewID = async (): Promise<string> => {
     if (error.status === 404 && error.reason === 'missing') {
       return id;
     }
-    return `!error ${error}`;
+    throw error;
   }
 };
 
+/**
+ * Add new patient info to database
+ *
+ * @param {PatientInterface} doc
+ * @param {string} [img]
+ * @return {*}  {Promise<void>}
+ */
 const DBAddNewPatient = async (
   doc: PatientInterface,
   img?: string
-): Promise<{ res: string | boolean; error?: string }> => {
-  try {
-    // create random unique id
-    const id = await GenerateNewID();
-    if (id.startsWith('!error')) {
-      return { res: false, error: id };
-    }
-    // eslint-disable-next-line no-underscore-dangle
-    doc._id = id;
+): Promise<void> => {
+  // create random unique id
+  const id = await GenerateNewID();
 
-    // Encrypt data
-    const data = await CipherEncrypt(JSON.stringify(doc));
+  // eslint-disable-next-line no-underscore-dangle
+  doc._id = id;
 
-    // insert data to database
-    const res = await PATIENTS.put({
-      _id: id,
-      _attachments: {
-        patient: { content_type: 'image/jpeg', data: img || '' },
-      },
-      keywords: doc.keywords,
-      data,
-    });
+  // Encrypt data
+  const data = await CipherEncrypt(JSON.stringify(doc));
 
-    if (res.ok) {
-      return { res: id };
-    }
-    return { res: false, error: 'response ok is false' };
-  } catch (error) {
-    return { res: false, error };
+  // insert data to database
+  const res = await PATIENTS.put({
+    _id: id,
+    _attachments: {
+      patient: { content_type: 'image/jpeg', data: img || '' },
+    },
+    keywords: doc.keywords,
+    data,
+  });
+
+  if (res.ok) {
+    return;
   }
+
+  // if res is not okay
+  throw new Error('Add new patient failed');
 };
 
-const decrpytdoc = async (
+/**
+ * Decrypt multiple documents asynchronously
+ *
+ * @param {PouchDB.Core.ExistingDocument<PatientInterfaceEncrypted>[]} docs
+ * @return {*}
+ */
+const decrpytdocs = async (
   docs: PouchDB.Core.ExistingDocument<PatientInterfaceEncrypted>[]
 ) => {
-  const temp = [];
-  // eslint-disable-next-line no-restricted-syntax
-  for (const doc of docs) {
-    temp.push(CipherDecrypt(doc.data));
-  }
+  const temp: Promise<PatientInterface>[] = [];
+
+  docs.forEach(async (doc) => {
+    const data = CipherDecrypt(doc.data);
+    temp.push(data);
+  });
 
   return Promise.all(temp);
 };
 
-const DBSearchByName = async (
-  name: string
-): Promise<{
-  res?: PatientInterface[];
-  error?: string;
-}> => {
-  try {
-    const indexRes = await PATIENTS.createIndex({
-      index: {
-        fields: ['keywords'],
-      },
+/**
+ * Search in patient database by name
+ *
+ * @param {string} name
+ * @return {*}  {Promise<PatientInterface[]>}
+ */
+const DBSearchByName = async (name: string): Promise<PatientInterface[]> => {
+  const indexRes = await PATIENTS.createIndex({
+    index: {
+      fields: ['keywords'],
+    },
+  });
+
+  if (indexRes.result === 'created' || indexRes.result === 'exists') {
+    const res = await PATIENTS.find({
+      selector: { keywords: { $elemMatch: name } },
+      fields: ['_id', 'data'],
     });
 
-    if (indexRes.result === 'created' || indexRes.result === 'exists') {
-      const res = await PATIENTS.find({
-        selector: { keywords: { $elemMatch: name } },
-        fields: ['_id', 'data'],
-      });
-
-      // decrypt data
-      const decrypted = await decrpytdoc(res.docs);
-
-      return { res: decrypted };
-    }
-    return { error: 'DBSearchByName createIndex failed' };
-  } catch (error) {
-    return { error };
+    // decrypt data
+    const decrypted = await decrpytdocs(res.docs);
+    return decrypted;
   }
+
+  // if indexing failed
+  throw new Error('DBSearchByName createIndex failed');
 };
 
-const DBSearchByID = async (id: string) => {
-  try {
-    const doc = await PATIENTS.get(id, { attachments: true });
-    const decrypted = await CipherDecrypt(doc.data);
-    if (doc) {
-      return { res: decrypted };
-    }
-    return { res: false, error: `User ${id} not found` };
-  } catch (error) {
-    return { res: false, error };
+/**
+ * Search in patient database by id
+ *
+ * @param {string} id
+ * @return {*}  {Promise<PatientInterface>}
+ */
+const DBSearchByID = async (id: string): Promise<PatientInterface> => {
+  const doc = await PATIENTS.get(id, { attachments: true });
+  const decrypted = await CipherDecrypt(doc.data);
+  if (doc) {
+    return decrypted;
   }
+
+  throw new Error(`User ${id} not found`);
 };
 
 export { DBAddNewPatient, DBSearchByName, DBSearchByID };
